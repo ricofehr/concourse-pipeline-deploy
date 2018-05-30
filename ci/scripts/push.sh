@@ -2,6 +2,7 @@
 
 set -e -x
 
+env
 [[ -z $CF_API ]] && echo "CF_API env variable is missing" && exit 1
 [[ -z $CF_USER ]] && echo "CF_USER env variable is missing" && exit 1
 [[ -z $CF_ORG ]] && echo "CF_ORG env variable is missing" && exit 1
@@ -14,7 +15,7 @@ fi
 [[ -z "$MICROSLIST" ]] && exit 1
 
 export TERM=${TERM:-dumb}
-if [[ -z $CF_SSOCODE ]]
+if [[ -z $CF_SSOCODE ]]; then
     cf login -a $CF_API -u $CF_USER -p $CF_PASSWORD -o $CF_ORG -s $CF_SPACE --skip-ssl-validation
 else
     cf login -a $CF_API -u $CF_USER -o $CF_ORG -s $CF_SPACE --skip-ssl-validation --sso-passcode $CF_SSOCODE

@@ -2,6 +2,7 @@
 
 set -e -x
 
+env
 [[ -z "$MICROSLIST" ]] && exit 1
 
 export TERM=${TERM:-dumb}
