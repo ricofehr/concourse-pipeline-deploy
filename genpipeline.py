@@ -119,14 +119,14 @@ def parse_args():
 
     if not os.path.isfile(os.path.expanduser(options.priv_key)):
         print('No ssh key %s found !' % options.priv_key)
-        exit(1)
-
-    try:
-        s = open(os.path.expanduser(options.priv_key), 'r')
-        options.priv_key = s.readlines()
-    except Exception as e:
-        print(e)
-        exit(1)
+        print('Assumes that all git repositories are public')
+    else:
+        try:
+            s = open(os.path.expanduser(options.priv_key), 'r')
+            options.priv_key = s.readlines()
+        except Exception as e:
+            print(e)
+            exit(1)
 
     if (options.deploy_name == None):
         options.deploy_name = 'deploy_%s' % int(time.time())
