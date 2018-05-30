@@ -1,8 +1,7 @@
 #!/bin/bash
 
-set -e -x
+set -e
 
-env
 [[ -z $CF_API ]] && echo "CF_API env variable is missing" && exit 1
 [[ -z $CF_USER ]] && echo "CF_USER env variable is missing" && exit 1
 [[ -z $CF_ORG ]] && echo "CF_ORG env variable is missing" && exit 1
