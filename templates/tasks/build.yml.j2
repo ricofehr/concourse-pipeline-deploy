@@ -7,7 +7,7 @@
           repository: java
           tag: 'openjdk-8'
       inputs:
-        - source-deploy
+        - name: source-deploy
         {%- for repo in micros_list %}
         - name: source-{{ repo }}
         {%- endfor %}
