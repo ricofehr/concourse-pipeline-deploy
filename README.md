@@ -6,22 +6,26 @@ Generate a concourse pipeline deployment yaml for a build & deploy onto cloudfou
 
 The python script generates two yaml in a dedicated subfolder into out/
 - pipeline.yml: contains resources, jobs, and tasks for the build & deploy pipeline
-- secret.yml: contains credentials, private key, and microservices list
+- secret.yml: contains credentials, private key, and microservices list. This yaml generation can be disabled (-c parameter)
 
 The command has many options
 ```
-python genpipeline.py -g <git_prefix> -k <sshkey_file> --gd <git_deploy_prefix> -d <deploy_repo> -a <cf_api> -u <cf_user> -o <cf_org> -s <cf_space> -t <cf_ssocode> -n <deploy_name> -m <services_list>
+python genpipeline.py -g <git_prefix> -k <sshkey_file> --gd <git_deploy_prefix> -d <deploy_repo> -a <cf_api> -u <cf_user> -o <cf_org> -s <cf_space> -t <cf_ssocode> -n <deploy_name> -m <services_list> -c
 ```
 
 Mandatory options
 ```
 -g <git_prefix>: git prefix for the repos to deploy like http://gtihub.com/toto. We assume that all microservices are the same git prefix path.
 -d <deploy_repo>: name of the deploy repository (concourse-pipeline-deploy for this one)
+-m <services_list>: list of microservices repository name to deploy
+```
+
+Mandatory options if secret generation is not disabled (-c for disable)
+```
 -a <cf_api>: cloudfoundry api url
 -u <cf_user>: cloudfoundry username
 -o <cf_org>: cloudfoundry organization
 -s <cf_space>: cloudfoundry space
--m <services_list>: list of microservices repository name to deploy
 ```
 
 Either password or ssocode must be filled
