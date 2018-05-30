@@ -1,0 +1,39 @@
+---
+resources:
+- name: source-deploy
+  type: git
+  source:
+    uri:  {{ git_deploy_prefix }}/{{ git_deploy_repo }}
+    branch: master
+    private_key: {{ '{{' }} git-private-key {{ '}}' }}
+
+{%- for repo in micros_list %}
+- name: source-{{ repo }}
+  type: git
+  source:
+    uri:  {{ git_prefix }}/{{ repo }}
+    branch: master
+    private_key: {{ '{{' }} git-private-key {{ '}}' }}
+{%- endfor %}
+
+jobs:
+- name: deploy
+  public: true
+  serial: true
+  plan:
+  - get: source-deploy
+  {%- for repo in micros_list %}
+  - get: source-{{ repo }}
+    trigger: true
+  {%- endfor %}
+  {%- for task in tasks %}
+{{ task }}
+    params:
+      CF_API: {{ '{{' }} cf-api {{ '}}' }}
+      CF_USER: {{ '{{' }} cf-username {{ '}}' }}
+      CF_PASSWORD: {{ '{{' }} cf-password {{ '}}' }}
+      CF_SSOCODE: {{ '{{' }} cf-ssocode {{ '}}' }}
+      CF_ORG: {{ '{{' }} cf-organization {{ '}}' }}
+      CF_SPACE: {{ '{{' }} cf-space {{ '}}' }}
+      MICROSLIST: {{ '{{' }} microslist {{ '}}' }}
+  {%- endfor %}

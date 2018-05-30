@@ -1,3 +1,19 @@
+# out folder
+out/*
+!out/.gitkeep
+
+# secrets folder
+ci/secrets/*
+!ci/secrets/.gitkeep
+
+# pipelines folder
+ci/pipelines/*
+!ci/pipelines/.gitkeep
+
+# tasks folder
+ci/tasks/*
+!ci/tasks/.gitkeep
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

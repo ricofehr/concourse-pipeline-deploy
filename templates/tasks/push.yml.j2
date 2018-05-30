@@ -1,0 +1,15 @@
+  - task: push
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: ricofehr/cf-cli
+      inputs:
+        - name: source-deploy
+        - name: build-output
+        {%- for repo in micros_list %}
+        - name: source-{{ repo }}
+        {%- endfor %}
+      run:
+        path: source-deploy/ci/scripts/push.sh
