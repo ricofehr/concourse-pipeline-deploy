@@ -21,7 +21,7 @@ else
 fi
 
 for service in $MICROSLIST; do
-    sed -i "s;build/libs;build-output;" source-${service}/manifest.yml
-    cf push -f source-${service}/manifest.yml -b java_buildpack_offline
-    sed -i "s;build-output;build/libs;" source-${service}/manifest.yml
+    sed -i "s,build/libs,build-output,;s,java_buildpack,java_buildpack_offline," source-${service}/manifest.yml
+    cf bgd ${service} -f source-${service}/manifest.yml
+    sed -i "s,build-output,build/libs,;s,java_buildpack_offline,java_buildpack," source-${service}/manifest.yml
 done
