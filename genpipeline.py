@@ -134,6 +134,12 @@ def parse_args():
             print(parser.usage)
             exit(1)
 
+    if options.cf_password == None:
+        options.cf_password = ''
+
+    if options.cf_ssocode == None:
+        options.cf_ssocode = ''
+
     # Set default values for missings args
     if (options.priv_key == None):
         options.priv_key = "~/.ssh/id_rsa"
