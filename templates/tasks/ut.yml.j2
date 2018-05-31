@@ -1,0 +1,15 @@
+  - task: build
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: java
+          tag: 'openjdk-8'
+      inputs:
+        - name: source-deploy
+        {%- for repo in micros_list %}
+        - name: source-{{ repo }}
+        {%- endfor %}
+      run:
+        path: source-deploy/ci/scripts/ut.sh

@@ -26,10 +26,24 @@ def generate_secret(deploy_name, cf_api, cf_user, cf_password, cf_ssocode,
         j2_file.close()
 
 def generate_pipeline(deploy_name, micros_list, git_prefix, git_deploy_prefix, git_deploy_repo):
+    # prepare jobs
+    jobs = []
+
+    job = {}
+    job['name'] = 'unit-tests'
     # prepare tasks list
-    tasks = []
-    tasks.append(get_task(deploy_name, "build", micros_list, git_prefix))
-    tasks.append(get_task(deploy_name, "push", micros_list, git_prefix))
+    job['tasks'] = []
+    job['tasks'].append(get_task(deploy_name, "ut", micros_list, git_prefix))
+    jobs.append(job)
+
+    job = {}
+    job['name'] = 'deploy'
+    job['passed'] = 'unit-tests'
+    # prepare tasks list
+    job['tasks'] = []
+    job['tasks'].append(get_task(deploy_name, "build", micros_list, git_prefix))
+    job['tasks'].append(get_task(deploy_name, "push", micros_list, git_prefix))
+    jobs.append(job)
 
     # write pipeline file
     with open('./templates/pipeline.yml.j2') as j2_file:
@@ -38,7 +52,7 @@ def generate_pipeline(deploy_name, micros_list, git_prefix, git_deploy_prefix, g
             pipeline_file.write(template.render(micros_list=micros_list,
                                                 micros_list_str=' '.join(str(m) for m in micros_list),
                                                 git_prefix=git_prefix,
-                                                tasks=tasks,
+                                                jobs=jobs,
                                                 git_deploy_prefix=git_deploy_prefix,
                                                 git_deploy_repo=git_deploy_repo))
             pipeline_file.close()
