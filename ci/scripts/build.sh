@@ -10,6 +10,8 @@ for service in $MICROSLIST; do
     cd source-$service
     [[ ! -f gradlew ]] || ./gradlew --no-daemon clean assemble
     cd ..
+    sleep 5
+    find source-${service}/.
     cp source-${service}/build/libs/${service}-*-SNAPSHOT.jar  build-output/
 done
 
