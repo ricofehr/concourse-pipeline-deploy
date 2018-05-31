@@ -1,4 +1,4 @@
-  - task: build
+  - task: ut
     config:
       platform: linux
       image_resource:
@@ -9,7 +9,7 @@
       inputs:
         - name: source-deploy
         {%- for repo in micros_list %}
-        - name: source-{{ repo }}
+        - name: {{ repo }}
         {%- endfor %}
       run:
         path: source-deploy/ci/scripts/ut.sh

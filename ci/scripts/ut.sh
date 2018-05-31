@@ -7,7 +7,7 @@ set -e
 export TERM=${TERM:-dumb}
 
 for service in $MICROSLIST; do
-    cd source-$service
+    cd $service
     [[ ! -f gradlew ]] || ./gradlew test
     cd ..
 done

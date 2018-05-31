@@ -9,7 +9,7 @@
         - name: source-deploy
         - name: build-output
         {%- for repo in micros_list %}
-        - name: source-{{ repo }}
+        - name: {{ repo }}
         {%- endfor %}
       run:
         path: source-deploy/ci/scripts/push.sh

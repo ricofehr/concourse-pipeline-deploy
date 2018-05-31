@@ -15,7 +15,7 @@ resources:
     private_key: {{ '{{' }}git-private-key{{ '}}' }}
 
 {%- for repo in micros_list %}
-- name: source-{{ repo }}
+- name: {{ repo }}
   type: git
   source:
     uri:  {{ git_prefix }}/{{ repo }}
@@ -34,7 +34,7 @@ jobs:
     passed: [{{ job.passed }}]
     {%- endif %}
   {%- for repo in micros_list %}
-  - get: source-{{ repo }}
+  - get: {{ repo }}
     trigger: true
   {%- endfor %}
   {%- for task in job.tasks %}
