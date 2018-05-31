@@ -10,7 +10,6 @@ for service in $MICROSLIST; do
     cd source-$service
     [[ ! -f gradlew ]] || ./gradlew test
     cd ..
-    cp source-${service}/build/libs/${service}-*-SNAPSHOT.jar  build-output/
 done
 
 exit 0
