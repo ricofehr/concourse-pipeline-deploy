@@ -46,6 +46,7 @@ jobs:
       CF_SSOCODE: {{ '{{' }}cf-ssocode{{ '}}' }}
       CF_ORG: {{ '{{' }}cf-organization{{ '}}' }}
       CF_SPACE: {{ '{{' }}cf-space{{ '}}' }}
+      CF_BUILDPACK: {{ cf_buildpack }}
       MICROSLIST: {{ micros_list_str }}
   {%- endfor %}
 {%- endfor %}

@@ -25,7 +25,8 @@ def generate_secret(deploy_name, cf_api, cf_user, cf_password, cf_ssocode,
             secret_file.close()
         j2_file.close()
 
-def generate_pipeline(deploy_name, micros_list, git_prefix, git_deploy_prefix, git_deploy_repo):
+def generate_pipeline(deploy_name, micros_list, git_prefix,
+                      git_deploy_prefix, git_deploy_repo, cf_buildpack):
     # prepare jobs
     jobs = []
 
@@ -54,7 +55,8 @@ def generate_pipeline(deploy_name, micros_list, git_prefix, git_deploy_prefix, g
                                                 git_prefix=git_prefix,
                                                 jobs=jobs,
                                                 git_deploy_prefix=git_deploy_prefix,
-                                                git_deploy_repo=git_deploy_repo))
+                                                git_deploy_repo=git_deploy_repo,
+                                                cf_buildpack=cf_buildpack))
             pipeline_file.close()
         j2_file.close()
 
@@ -83,7 +85,8 @@ def parse_args():
                                    ' --gd <git_deploy_prefix> -d <deploy_repo>'
                                    ' -a <cf_api> -u <cf_user> -o <cf_org>'
                                    ' -s <cf_space> -t <cf_ssocode>'
-                                   ' -n <deploy_name> -m <services_list> -c'
+                                   ' -n <deploy_name> -m <services_list>'
+                                   ' -b <cf_buildpack> -c'
                                    % sys.argv[0])
     parser.add_option('-g', dest='git_prefix', type='string',
                       help='git prefix like ssh://127.0.0.1:22/root, mandatory')
@@ -110,6 +113,8 @@ def parse_args():
                       help='Deploy name, default is random generated')
     parser.add_option('-m', dest='micros_list', type='string',
                       help='microservices list, with a space delimitator, mandatory')
+    parser.add_option('-b', dest='cf_buildpack', type='string',
+                      help='If present, override CloudFoundry buildpack, default is empty')
     parser.add_option("-c", action="store_false", dest="is_gen_secret", default=True,
                       help="don't generate secret file")
     (options, args) = parser.parse_args()
@@ -139,6 +144,9 @@ def parse_args():
 
     if options.cf_ssocode == None:
         options.cf_ssocode = ''
+
+    if options.cf_buildpack == None:
+        options.cf_buildpack = ''
 
     # Set default values for missings args
     if (options.priv_key == None):
@@ -174,7 +182,7 @@ def main():
                         params.cf_password, params.cf_ssocode, params.cf_org,
                         params.cf_space, params.priv_key)
     generate_pipeline(params.deploy_name, params.micros_list, params.git_prefix,
-                      params.git_deploy_prefix, params.git_deploy_repo)
+                      params.git_deploy_prefix, params.git_deploy_repo, params.cf_buildpack)
     fly_output(params.deploy_name)
 
 if __name__ == '__main__':

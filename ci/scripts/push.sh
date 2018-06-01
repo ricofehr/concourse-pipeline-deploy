@@ -7,6 +7,10 @@ set -e
 [[ -z $CF_ORG ]] && echo "CF_ORG env variable is missing" && exit 1
 [[ -z $CF_SPACE ]] && echo "CF_SPACE env variable is missing" && exit 1
 
+# override buildpack
+[[ -n $CF_BUILDPACK ]] && CF_BUILDPACK="-b $CF_BUILDPACK"
+
+
 if [[ -z $CF_SSOCODE ]] && [[ -z $CF_PASSWORD ]]; then
     echo "CF_SSOCODE env variable is missing" && exit 1
 fi
@@ -21,11 +25,7 @@ else
 fi
 
 for service in $MICROSLIST; do
-    ls -all
-    echo "${PWD}/build-output"
-    sed -i "s,build/libs,${PWD}/build-output,;s,java_buildpack,java_buildpack_offline," ${service}/manifest.yml
-    cat ${service}/manifest.yml
-    ls -all ${PWD}/build-output/
-    cf bgd ${service} -f ${service}/manifest.yml
-    sed -i "s,${PWD}/build-output,build/libs,;s,java_buildpack_offline,java_buildpack," ${service}/manifest.yml
+    sed -i "s,build/libs,${PWD}/build-output," ${service}/manifest.yml
+    cf bgd ${service} -f ${service}/manifest.yml $CF_BUILDPACK
+    sed -i "s,${PWD}/build-output,build/libs," ${service}/manifest.yml
 done
