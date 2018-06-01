@@ -7,10 +7,6 @@ set -e
 [[ -z $CF_ORG ]] && echo "CF_ORG env variable is missing" && exit 1
 [[ -z $CF_SPACE ]] && echo "CF_SPACE env variable is missing" && exit 1
 
-# override buildpack
-[[ -n $CF_BUILDPACK ]] && CF_BUILDPACK="-b $CF_BUILDPACK"
-
-
 if [[ -z $CF_SSOCODE ]] && [[ -z $CF_PASSWORD ]]; then
     echo "CF_SSOCODE env variable is missing" && exit 1
 fi
@@ -26,6 +22,7 @@ fi
 
 for service in $MICROSLIST; do
     sed -i "s,build/libs,${PWD}/build-output," ${service}/manifest.yml
-    cf bgd ${service} -f ${service}/manifest.yml $CF_BUILDPACK
-    sed -i "s,${PWD}/build-output,build/libs," ${service}/manifest.yml
+    [[ -n "$CF_BUILDPACK" ]] && sed -i "s,buildpack: .*$,buildpack: $CF_BUILDPACK," ${service}/manifest.yml
+    cf bgd ${service} -f ${service}/manifest.yml
+    cd ${service} && git checkout -- manifest.yml
 done
