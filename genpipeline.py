@@ -41,6 +41,7 @@ def generate_pipeline(deploy_name, micros_list, git_prefix,
     if sonar != '':
         job = {}
         job['name'] = 'sonar-check'
+        job['passed'] = 'unit-tests'
         # prepare tasks list
         job['tasks'] = []
         job['tasks'].append(get_task(deploy_name, "sonar-build", micros_list, git_prefix))
@@ -49,7 +50,10 @@ def generate_pipeline(deploy_name, micros_list, git_prefix,
 
     job = {}
     job['name'] = 'deploy'
-    job['passed'] = 'unit-tests'
+    if sonar != '':
+        job['passed'] = 'sonar-check'
+    else:
+        job['passed'] = 'unit-tests'
     # prepare tasks list
     job['tasks'] = []
     job['tasks'].append(get_task(deploy_name, "build", micros_list, git_prefix))
