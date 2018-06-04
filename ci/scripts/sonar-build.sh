@@ -10,10 +10,15 @@ for service in $MICROSLIST; do
     cd $service
     [[ ! -f gradlew ]] || ./gradlew --no-daemon clean assemble
     cd ..
-    mkdir sonarqube-analysis-input/micros
-    mkdir sonarqube-analysis-input/micros/$service
-    cp -rf ${service}/build  sonarqube-analysis-input/micros/$service/
-    cp -rf ${service}/src  sonarqube-analysis-input/micros/$service/
+    mkdir sonarqube-analysis-input/src
+    mkdir sonarqube-analysis-input/classes
+    mkdir sonarqube-analysis-input/src/$service
+    mkdir sonarqube-analysis-input/classes/$service
+    cp -rf ${service}/build/classes/*  sonarqube-analysis-input/classes/$service/
+    cp -rf ${service}/src/*  sonarqube-analysis-input/src/$service/
 done
+
+ls -all
+find sonarqube-analysis-input/.
 
 exit 0
