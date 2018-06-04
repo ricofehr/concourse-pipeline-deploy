@@ -6,6 +6,15 @@ groups:
   - {{ job.name }}
 {%- endfor %}
 
+{%- if sonar %}
+resource_types:
+- name: sonar-runner
+  type: docker-image
+  source:
+    repository: cathive/concourse-sonarqube-resource
+    tag: 0.6.0
+{%- endif %}
+
 resources:
 - name: source-deploy
   type: git
@@ -13,13 +22,20 @@ resources:
     uri:  {{ git_deploy_prefix }}/{{ git_deploy_repo }}
     branch: master
     private_key: {{ '{{' }}git-private-key{{ '}}' }}
-
+{%- if sonar %}
+- name: code-analysis
+  type: sonar-runner
+  source:
+    host_url: {{ sonar }}
+    login: admin
+    password: admin
+{%- endif %}
 {%- for repo in micros_list %}
 - name: {{ repo }}
   type: git
   source:
     uri:  {{ git_prefix }}/{{ repo }}
-    branch: master
+    branch: {{ git_branch }}
     private_key: {{ '{{' }}git-private-key{{ '}}' }}
 {%- endfor %}
 

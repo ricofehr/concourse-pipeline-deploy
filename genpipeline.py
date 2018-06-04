@@ -26,7 +26,8 @@ def generate_secret(deploy_name, cf_api, cf_user, cf_password, cf_ssocode,
         j2_file.close()
 
 def generate_pipeline(deploy_name, micros_list, git_prefix,
-                      git_deploy_prefix, git_deploy_repo, cf_buildpack):
+                      git_deploy_prefix, git_deploy_repo, cf_buildpack,
+                      branch, sonar):
     # prepare jobs
     jobs = []
 
@@ -36,6 +37,15 @@ def generate_pipeline(deploy_name, micros_list, git_prefix,
     job['tasks'] = []
     job['tasks'].append(get_task(deploy_name, "ut", micros_list, git_prefix))
     jobs.append(job)
+
+    if sonar != '':
+        job = {}
+        job['name'] = 'sonar-check'
+        # prepare tasks list
+        job['tasks'] = []
+        job['tasks'].append(get_task(deploy_name, "sonar-build", micros_list, git_prefix))
+        job['tasks'].append(get_task(deploy_name, "sonar-gate", micros_list, git_prefix))
+        jobs.append(job)
 
     job = {}
     job['name'] = 'deploy'
@@ -56,7 +66,9 @@ def generate_pipeline(deploy_name, micros_list, git_prefix,
                                                 jobs=jobs,
                                                 git_deploy_prefix=git_deploy_prefix,
                                                 git_deploy_repo=git_deploy_repo,
-                                                cf_buildpack=cf_buildpack))
+                                                cf_buildpack=cf_buildpack,
+                                                branch=branch,
+                                                sonar=sonar))
             pipeline_file.close()
         j2_file.close()
 
@@ -81,20 +93,17 @@ def prepare_pipeline(deploy_name):
 # Parse cmd args, exit with error if mandatory field is missing
 def parse_args():
     # Parse args
-    parser = optparse.OptionParser('python %s -g <git_prefix> -k <sshkey_file>'
-                                   ' --gd <git_deploy_prefix> -d <deploy_repo>'
-                                   ' -a <cf_api> -u <cf_user> -o <cf_org>'
-                                   ' -s <cf_space> -t <cf_ssocode>'
-                                   ' -n <deploy_name> -m <services_list>'
-                                   ' -b <cf_buildpack> -c'
+    parser = optparse.OptionParser('python %s -g <git_prefix> -d <deploy_repo>'
+                                   ' -a <cf_api> -u <cf_user> -p <cf_password>'
+                                   ' -o <cf_org> -s <cf_space> -t <cf_ssocode>'
+                                   ' -m <services_list>'
+                                   ' --private-key <sshkey_file> --gd <git_deploy_prefix>'
+                                   ' --name <deploy_name> --branch <git_branch>'
+                                   ' --buildpack <cf_buildpack>'
+                                   ' --sonar <sonar_endpoint> --nobuild-secret'
                                    % sys.argv[0])
     parser.add_option('-g', dest='git_prefix', type='string',
                       help='git prefix like ssh://127.0.0.1:22/root, mandatory')
-    parser.add_option('-k', dest='priv_key', type='string',
-                      help='Ssh private key, default is ~/.ssh/id_rsa')
-    parser.add_option('--gd', dest='git_deploy_prefix', type='string',
-                      help='git prefix for deploy repo like ssh://127.0.0.1:22/root,'
-                           ' default is same of git_prefix')
     parser.add_option('-d', dest='git_deploy_repo', type='string',
                       help='name of the deploy repo, mandatory')
     parser.add_option('-a', dest='cf_api', type='string',
@@ -109,13 +118,22 @@ def parse_args():
                       help='CloudFoundry space, mandatory field if gen secret')
     parser.add_option('-t', dest='cf_ssocode', type='string',
                       help='CloudFoundry ssocode, default is empty')
-    parser.add_option('-n', dest='deploy_name', type='string',
-                      help='Deploy name, default is random generated')
     parser.add_option('-m', dest='micros_list', type='string',
                       help='microservices list, with a space delimitator, mandatory')
-    parser.add_option('-b', dest='cf_buildpack', type='string',
+    parser.add_option('--private-key', dest='priv_key', type='string',
+                      help='Ssh private key, default is ~/.ssh/id_rsa')
+    parser.add_option('--gd', dest='git_deploy_prefix', type='string',
+                      help='git prefix for deploy repo like ssh://127.0.0.1:22/root,'
+                           ' default is same of git_prefix')
+    parser.add_option('--name', dest='deploy_name', type='string',
+                      help='Deploy name, default is random generated')
+    parser.add_option('--branch', dest='git_branch', type='string',
+                      help='Specify git branch to deploy, default is master')
+    parser.add_option('--buildpack', dest='cf_buildpack', type='string',
                       help='If present, override CloudFoundry buildpack, default is empty')
-    parser.add_option("-c", action="store_false", dest="is_gen_secret", default=True,
+    parser.add_option('--sonar', dest='sonar', type='string',
+                      help='Sonarqube ip:port. If present, enable the sonar job.')
+    parser.add_option("--nobuild-secret", action="store_false", dest="is_gen_secret", default=True,
                       help="don't generate secret file")
     (options, args) = parser.parse_args()
 
@@ -147,6 +165,12 @@ def parse_args():
 
     if options.cf_buildpack == None:
         options.cf_buildpack = ''
+
+    if options.git_branch == None:
+        options.git_branch = 'master'
+
+    if options.sonar == None:
+        options.sonar = ''
 
     # Set default values for missings args
     if (options.priv_key == None):
@@ -182,7 +206,8 @@ def main():
                         params.cf_password, params.cf_ssocode, params.cf_org,
                         params.cf_space, params.priv_key)
     generate_pipeline(params.deploy_name, params.micros_list, params.git_prefix,
-                      params.git_deploy_prefix, params.git_deploy_repo, params.cf_buildpack)
+                      params.git_deploy_prefix, params.git_deploy_repo, params.cf_buildpack,
+                      params.git_branch, params.sonar)
     fly_output(params.deploy_name)
 
 if __name__ == '__main__':

@@ -1,0 +1,29 @@
+  - task: sonar-build
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: debian
+          tag: 'jessie'
+        inputs:
+          - name: source-deploy
+        {%- for repo in micros_list %}
+          - name: {{ repo }}
+        {%- endfor %}
+        outputs:
+        # Hint: For some (most?) languages, the sonar-runner needs more than just the
+        # sources to perform a full analysis. Line coverage reports, unit test reports,
+        # Java class files and mutation test results should also be present.
+        # Therefore, you'll have to make sure that your build script provides the sources
+        # and the compilation/test in your Concourse CI build plan.
+        # (And that is the reason, why we need the following output)
+          - name: sonarqube-analysis-input
+        run:
+          path: source-deploy/ci/scripts/sonar-build.sh
+  - put: code-analysis
+    params:
+      project_path: sonarqube-analysis-input
+      additional_properties:
+        # Will be passed as "-Dsonar.javascript.lcov.reportPaths="coverage/lcov.info" to the scanner.
+        sonar.javascript.lcov.reportPaths: coverage/lcov.info
