@@ -26,8 +26,10 @@ def generate_secret(deploy_name, cf_api, cf_user, cf_password, cf_ssocode,
         j2_file.close()
 
 def generate_pipeline(deploy_name, micros_list, git_prefix,
-                      git_deploy_prefix, git_deploy_repo, cf_buildpack,
+                      git_deploy_prefix, git_deploy_repo,
                       branch, sonar):
+    micros_list_str=' '.join(str(m) for m in micros_list)
+
     # prepare jobs
     jobs = []
 
@@ -45,6 +47,7 @@ def generate_pipeline(deploy_name, micros_list, git_prefix,
         # prepare tasks list
         job['tasks'] = []
         job['tasks'].append(get_task(deploy_name, "sonar-build", micros_list, git_prefix))
+        job['tasks'].append(get_task(deploy_name, "sonar-put-code", micros_list, git_prefix))
         job['tasks'].append(get_task(deploy_name, "sonar-gate", micros_list, git_prefix))
         jobs.append(job)
 
@@ -65,21 +68,23 @@ def generate_pipeline(deploy_name, micros_list, git_prefix,
         template = Template(j2_file.read())
         with open('./out/%s/pipeline.yml' % deploy_name, 'w') as pipeline_file:
             pipeline_file.write(template.render(micros_list=micros_list,
-                                                micros_list_str=' '.join(str(m) for m in micros_list),
+                                                micros_list_str=micros_list_str,
                                                 git_prefix=git_prefix,
                                                 jobs=jobs,
                                                 git_deploy_prefix=git_deploy_prefix,
                                                 git_deploy_repo=git_deploy_repo,
-                                                cf_buildpack=cf_buildpack,
                                                 branch=branch,
                                                 sonar=sonar))
             pipeline_file.close()
         j2_file.close()
 
 def get_task(deploy_name, task_name, micros_list, git_prefix):
+    micros_list_str=' '.join(str(m) for m in micros_list)
+    task = {}
     with open('./templates/tasks/%s.yml.j2' % task_name) as j2_file:
         template = Template(j2_file.read())
-        task = template.render(micros_list=micros_list, git_prefix=git_prefix)
+        task = template.render(micros_list=micros_list, micros_list_str=micros_list_str,
+                               git_prefix=git_prefix, deploy_key=deploy_name)
         j2_file.close()
     return task
 
@@ -133,8 +138,6 @@ def parse_args():
                       help='Deploy name, default is random generated')
     parser.add_option('--branch', dest='git_branch', type='string',
                       help='Specify git branch to deploy, default is master')
-    parser.add_option('--buildpack', dest='cf_buildpack', type='string',
-                      help='If present, override CloudFoundry buildpack, default is empty')
     parser.add_option('--sonar', dest='sonar', type='string',
                       help='Sonarqube ip:port. If present, enable the sonar job.')
     parser.add_option("--nobuild-secret", action="store_false", dest="is_gen_secret", default=True,
@@ -166,9 +169,6 @@ def parse_args():
 
     if options.cf_ssocode == None:
         options.cf_ssocode = ''
-
-    if options.cf_buildpack == None:
-        options.cf_buildpack = ''
 
     if options.git_branch == None:
         options.git_branch = 'master'
@@ -210,7 +210,7 @@ def main():
                         params.cf_password, params.cf_ssocode, params.cf_org,
                         params.cf_space, params.priv_key)
     generate_pipeline(params.deploy_name, params.micros_list, params.git_prefix,
-                      params.git_deploy_prefix, params.git_deploy_repo, params.cf_buildpack,
+                      params.git_deploy_prefix, params.git_deploy_repo,
                       params.git_branch, params.sonar)
     fly_output(params.deploy_name)
 

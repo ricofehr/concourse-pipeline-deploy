@@ -13,3 +13,11 @@
         {%- endfor %}
       run:
         path: source-deploy/ci/scripts/push.sh
+    params:
+      CF_API: {{ '{{' }}cf-api{{ '}}' }}
+      CF_USER: {{ '{{' }}cf-username{{ '}}' }}
+      CF_PASSWORD: {{ '{{' }}cf-password{{ '}}' }}
+      CF_SSOCODE: {{ '{{' }}cf-ssocode{{ '}}' }}
+      CF_ORG: {{ '{{' }}cf-organization{{ '}}' }}
+      CF_SPACE: {{ '{{' }}cf-space{{ '}}' }}
+      MICROSLIST: {{ micros_list_str }}

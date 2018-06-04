@@ -1,0 +1,8 @@
+  - put: code-analysis
+    params:
+      project_path: sonarqube-analysis-input
+      project_key: {{ deploy_key }}
+      project_name: {{ micros_list_str }}
+      additional_properties:
+        # Will be passed as "-Dsonar.javascript.lcov.reportPaths="coverage/lcov.info" to the scanner.
+        sonar.javascript.lcov.reportPaths: coverage/lcov.info

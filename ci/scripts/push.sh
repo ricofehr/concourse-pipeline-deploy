@@ -22,7 +22,6 @@ fi
 
 for service in $MICROSLIST; do
     sed -i "s,build/libs,${PWD}/build-output," ${service}/manifest.yml
-    [[ -n "$CF_BUILDPACK" ]] && sed -i "s,buildpack: .*$,buildpack: $CF_BUILDPACK," ${service}/manifest.yml
     cf bgd ${service} -f ${service}/manifest.yml
     cd ${service} && git checkout -- manifest.yml
 done

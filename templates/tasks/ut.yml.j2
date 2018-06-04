@@ -13,3 +13,5 @@
         {%- endfor %}
       run:
         path: source-deploy/ci/scripts/ut.sh
+    params:
+      MICROSLIST: {{ micros_list_str }}

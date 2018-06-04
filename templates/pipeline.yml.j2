@@ -55,14 +55,5 @@ jobs:
   {%- endfor %}
   {%- for task in job.tasks %}
 {{ task }}
-    params:
-      CF_API: {{ '{{' }}cf-api{{ '}}' }}
-      CF_USER: {{ '{{' }}cf-username{{ '}}' }}
-      CF_PASSWORD: {{ '{{' }}cf-password{{ '}}' }}
-      CF_SSOCODE: {{ '{{' }}cf-ssocode{{ '}}' }}
-      CF_ORG: {{ '{{' }}cf-organization{{ '}}' }}
-      CF_SPACE: {{ '{{' }}cf-space{{ '}}' }}
-      CF_BUILDPACK: {{ cf_buildpack }}
-      MICROSLIST: {{ micros_list_str }}
   {%- endfor %}
 {%- endfor %}
