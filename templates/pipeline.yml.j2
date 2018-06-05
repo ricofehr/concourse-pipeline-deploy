@@ -27,8 +27,8 @@ resources:
   type: sonar-runner
   source:
     host_url: {{ sonar }}
-    login: admin
-    password: admin
+    login: {{ sonar_login }}
+    password: {{ sonar_password }}
 {%- endif %}
 {%- for repo in micros_list %}
 - name: {{ repo }}

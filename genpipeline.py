@@ -27,7 +27,7 @@ def generate_secret(deploy_name, cf_api, cf_user, cf_password, cf_ssocode,
 
 def generate_pipeline(deploy_name, micros_list, git_prefix,
                       git_deploy_prefix, git_deploy_repo,
-                      branch, sonar):
+                      branch, sonar, sonar_login, sonar_password):
     micros_list_str=' '.join(str(m) for m in micros_list)
 
     # prepare jobs
@@ -74,7 +74,9 @@ def generate_pipeline(deploy_name, micros_list, git_prefix,
                                                 git_deploy_prefix=git_deploy_prefix,
                                                 git_deploy_repo=git_deploy_repo,
                                                 branch=branch,
-                                                sonar=sonar))
+                                                sonar=sonar,
+                                                sonar_login=sonar_login,
+                                                sonar_password=sonar_password))
             pipeline_file.close()
         j2_file.close()
 
@@ -108,8 +110,8 @@ def parse_args():
                                    ' -m <services_list>'
                                    ' --private-key <sshkey_file> --gd <git_deploy_prefix>'
                                    ' --name <deploy_name> --branch <git_branch>'
-                                   ' --buildpack <cf_buildpack>'
-                                   ' --sonar <sonar_endpoint> --nobuild-secret'
+                                   ' --sonar <sonar_endpoint> --sonar-login <sonar_login>'
+                                   '  --sonar-password <sonar_password> --nobuild-secret'
                                    % sys.argv[0])
     parser.add_option('-g', dest='git_prefix', type='string',
                       help='git prefix like ssh://127.0.0.1:22/root, mandatory')
@@ -139,7 +141,11 @@ def parse_args():
     parser.add_option('--branch', dest='git_branch', type='string',
                       help='Specify git branch to deploy, default is master')
     parser.add_option('--sonar', dest='sonar', type='string',
-                      help='Sonarqube ip:port. If present, enable the sonar job.')
+                      help='Sonarqube http://ip:port/. If present, enable the sonar job.')
+    parser.add_option('--sonar-login', dest='sonar_login', type='string',
+                      help='Sonarqube login. Default is admin')
+    parser.add_option('--sonar-password', dest='sonar_password', type='string',
+                      help='Sonarqube password. Default is admin')
     parser.add_option("--nobuild-secret", action="store_false", dest="is_gen_secret", default=True,
                       help="don't generate secret file")
     (options, args) = parser.parse_args()
@@ -176,6 +182,12 @@ def parse_args():
     if options.sonar == None:
         options.sonar = ''
 
+    if options.sonar_login == None:
+        options.sonar_login = 'admin'
+
+    if options.sonar_password == None:
+        options.sonar_password = 'admin'
+
     # Set default values for missings args
     if (options.priv_key == None):
         options.priv_key = "~/.ssh/id_rsa"
@@ -211,7 +223,8 @@ def main():
                         params.cf_space, params.priv_key)
     generate_pipeline(params.deploy_name, params.micros_list, params.git_prefix,
                       params.git_deploy_prefix, params.git_deploy_repo,
-                      params.git_branch, params.sonar)
+                      params.git_branch, params.sonar, params.sonar_login,
+                      params.sonar_password)
     fly_output(params.deploy_name)
 
 if __name__ == '__main__':
