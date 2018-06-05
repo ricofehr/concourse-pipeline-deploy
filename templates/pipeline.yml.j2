@@ -6,7 +6,7 @@ groups:
   - {{ job.name }}
 {%- endfor %}
 
-{%- if sonar %}
+{%- if is_sonar %}
 resource_types:
 - name: sonar-runner
   type: docker-image
@@ -22,13 +22,13 @@ resources:
     uri:  {{ git_deploy_prefix }}/{{ git_deploy_repo }}
     branch: master
     private_key: {{ '{{' }}git-private-key{{ '}}' }}
-{%- if sonar %}
+{%- if is_sonar %}
 - name: code-analysis
   type: sonar-runner
   source:
-    host_url: {{ sonar }}
-    login: {{ sonar_login }}
-    password: {{ sonar_password }}
+    host_url: {{ '{{' }}sonar-url{{ '}}' }}
+    login: {{ '{{' }}sonar-login{{ '}}' }}
+    password: {{ '{{' }}sonar-password{{ '}}' }}
 {%- endif %}
 {%- for repo in micros_list %}
 - name: {{ repo }}

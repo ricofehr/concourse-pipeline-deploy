@@ -11,7 +11,7 @@ def fly_output(deploy_name):
     print("fly -t lite set-pipeline -p %s -c pipeline.yml -l secret.yml" % deploy_name)
 
 def generate_secret(deploy_name, cf_api, cf_user, cf_password, cf_ssocode,
-                    cf_org, cf_space, priv_key):
+                    cf_org, cf_space, priv_key, sonar, sonar_login, sonar_password):
     with open('./templates/secret.yml.j2') as j2_file:
         template = Template(j2_file.read())
         with open('./out/%s/secret.yml' % deploy_name, 'w') as secret_file:
@@ -21,13 +21,16 @@ def generate_secret(deploy_name, cf_api, cf_user, cf_password, cf_ssocode,
                                               cf_ssocode=cf_ssocode,
                                               cf_org=cf_org,
                                               cf_space=cf_space,
-                                              priv_key='        '.join(str(l) for l in priv_key)))
+                                              priv_key='        '.join(str(l) for l in priv_key),
+                                              sonar_url=sonar,
+                                              sonar_login=sonar_login,
+                                              sonar_password=sonar_password))
             secret_file.close()
         j2_file.close()
 
 def generate_pipeline(deploy_name, micros_list, git_prefix,
                       git_deploy_prefix, git_deploy_repo,
-                      branch, sonar, sonar_login, sonar_password):
+                      branch, sonar):
     micros_list_str=' '.join(str(m) for m in micros_list)
 
     # prepare jobs
@@ -74,9 +77,7 @@ def generate_pipeline(deploy_name, micros_list, git_prefix,
                                                 git_deploy_prefix=git_deploy_prefix,
                                                 git_deploy_repo=git_deploy_repo,
                                                 branch=branch,
-                                                sonar=sonar,
-                                                sonar_login=sonar_login,
-                                                sonar_password=sonar_password))
+                                                is_sonar=sonar))
             pipeline_file.close()
         j2_file.close()
 
@@ -220,11 +221,11 @@ def main():
     if params.is_gen_secret:
         generate_secret(params.deploy_name, params.cf_api, params.cf_user,
                         params.cf_password, params.cf_ssocode, params.cf_org,
-                        params.cf_space, params.priv_key)
+                        params.cf_space, params.priv_key, params.sonar,
+                        params.sonar_login, params.sonar_password)
     generate_pipeline(params.deploy_name, params.micros_list, params.git_prefix,
                       params.git_deploy_prefix, params.git_deploy_repo,
-                      params.git_branch, params.sonar, params.sonar_login,
-                      params.sonar_password)
+                      params.git_branch, params.sonar)
     fly_output(params.deploy_name)
 
 if __name__ == '__main__':
