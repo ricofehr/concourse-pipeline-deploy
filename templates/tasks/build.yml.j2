@@ -8,13 +8,11 @@
           tag: 'openjdk-8'
       inputs:
         - name: source-deploy
-        {%- for repo in micros_list %}
-        - name: {{ repo }}
-        {%- endfor %}
+        - name: {{ micro_name }}
       outputs:
         - name: build-output
           path: build-output/
       run:
         path: source-deploy/ci/scripts/build.sh
     params:
-      MICROSLIST: {{ micros_list_str }}
+      MICRONAME: {{ micro_name }}

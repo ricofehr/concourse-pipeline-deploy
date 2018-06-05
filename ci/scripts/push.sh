@@ -11,7 +11,7 @@ if [[ -z $CF_SSOCODE ]] && [[ -z $CF_PASSWORD ]]; then
     echo "CF_SSOCODE env variable is missing" && exit 1
 fi
 
-[[ -z "$MICROSLIST" ]] && exit 1
+[[ -z "$MICRONAME" ]] && exit 1
 
 export TERM=${TERM:-dumb}
 if [[ -z $CF_SSOCODE ]]; then
@@ -20,8 +20,7 @@ else
     cf login -a $CF_API -u $CF_USER -o $CF_ORG -s $CF_SPACE --skip-ssl-validation --sso-passcode $CF_SSOCODE
 fi
 
-for service in $MICROSLIST; do
-    sed -i "s,build/libs,${PWD}/build-output," ${service}/manifest.yml
-    cf bgd ${service} -f ${service}/manifest.yml
-    cd ${service} && git checkout -- manifest.yml
-done
+# Fix jar path
+sed -i "s,build/libs,${PWD}/build-output," ${MICRONAME}/manifest.yml
+cf bgd ${MICRONAME} -f ${MICRONAME}/manifest.yml
+cd ${MICRONAME} && git checkout -- manifest.yml

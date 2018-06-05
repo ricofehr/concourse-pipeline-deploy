@@ -2,15 +2,15 @@
 
 set -e
 
-[[ -z "$MICROSLIST" ]] && exit 1
+[[ -z "$MICRONAME" ]] && exit 1
 
 export TERM=${TERM:-dumb}
 
-for service in $MICROSLIST; do
-    cd $service
-    [[ ! -f gradlew ]] || ./gradlew --no-daemon clean assemble
-    cd ..
-    cp ${service}/build/libs/${service}-*.jar  build-output/
-done
+
+cd $MICRONAME
+[[ ! -f gradlew ]] || ./gradlew --no-daemon clean assemble
+cd ..
+cp ${MICRONAME}/build/libs/${MICRONAME}-*.jar  build-output/
+
 
 exit 0

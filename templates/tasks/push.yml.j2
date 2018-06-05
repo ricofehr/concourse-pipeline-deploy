@@ -8,9 +8,7 @@
       inputs:
         - name: source-deploy
         - name: build-output
-        {%- for repo in micros_list %}
-        - name: {{ repo }}
-        {%- endfor %}
+        - name: {{ micro_name }}
       run:
         path: source-deploy/ci/scripts/push.sh
     params:
@@ -20,4 +18,4 @@
       CF_SSOCODE: {{ '{{' }}cf-ssocode{{ '}}' }}
       CF_ORG: {{ '{{' }}cf-organization{{ '}}' }}
       CF_SPACE: {{ '{{' }}cf-space{{ '}}' }}
-      MICROSLIST: {{ micros_list_str }}
+      MICRONAME: {{ micro_name }}

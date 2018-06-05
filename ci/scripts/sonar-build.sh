@@ -2,20 +2,18 @@
 
 set -e
 
-[[ -z "$MICROSLIST" ]] && exit 1
+[[ -z "$MICRONAME" ]] && exit 1
 
 export TERM=${TERM:-dumb}
 
-for service in $MICROSLIST; do
-    cd $service
-    [[ ! -f gradlew ]] || ./gradlew --no-daemon clean assemble
-    cd ..
-    mkdir sonarqube-analysis-input/src
-    mkdir sonarqube-analysis-input/classes
-    mkdir sonarqube-analysis-input/src/$service
-    mkdir sonarqube-analysis-input/classes/$service
-    cp -rf ${service}/build/classes/*  sonarqube-analysis-input/classes/$service/
-    cp -rf ${service}/src/*  sonarqube-analysis-input/src/$service/
-done
+cd $MICRONAME
+[[ ! -f gradlew ]] || ./gradlew --no-daemon clean assemble
+cd ..
+mkdir sonarqube-analysis-input/src
+mkdir sonarqube-analysis-input/classes
+mkdir sonarqube-analysis-input/src/$MICRONAME
+mkdir sonarqube-analysis-input/classes/$MICRONAME
+cp -rf ${MICRONAME}/build/classes/*  sonarqube-analysis-input/classes/$MICRONAME/
+cp -rf ${MICRONAME}/src/*  sonarqube-analysis-input/src/$MICRONAME/
 
 exit 0

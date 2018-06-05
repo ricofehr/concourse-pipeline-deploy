@@ -21,7 +21,9 @@ resources:
   source:
     uri:  {{ git_deploy_prefix }}/{{ git_deploy_repo }}
     branch: master
+    {%- if is_priv_key %}
     private_key: {{ '{{' }}git-private-key{{ '}}' }}
+    {%- endif %}
 {%- if is_sonar %}
 - name: code-analysis
   type: sonar-runner
@@ -30,14 +32,14 @@ resources:
     login: {{ '{{' }}sonar-login{{ '}}' }}
     password: {{ '{{' }}sonar-password{{ '}}' }}
 {%- endif %}
-{%- for repo in micros_list %}
-- name: {{ repo }}
+- name: {{ micro_name }}
   type: git
   source:
-    uri:  {{ git_prefix }}/{{ repo }}
+    uri:  {{ git_prefix }}/{{ micro_name }}
     branch: {{ git_branch }}
+    {%- if is_priv_key %}
     private_key: {{ '{{' }}git-private-key{{ '}}' }}
-{%- endfor %}
+    {%- endif %}
 
 jobs:
 {%- for job in jobs %}
@@ -46,13 +48,11 @@ jobs:
   serial: true
   plan:
   - get: source-deploy
-  {%- for repo in micros_list %}
-  - get: {{ repo }}
+  - get: {{ micro_name }}
     {%- if job.passed %}
     passed: [{{ job.passed }}]
     {%- endif %}
     trigger: true
-  {%- endfor %}
   {%- for task in job.tasks %}
 {{ task }}
   {%- endfor %}

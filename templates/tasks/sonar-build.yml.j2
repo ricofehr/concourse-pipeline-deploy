@@ -8,9 +8,7 @@
           tag: 'openjdk-8'
       inputs:
         - name: source-deploy
-        {%- for repo in micros_list %}
-        - name: {{ repo }}
-        {%- endfor %}
+        - name: {{ micro_name }}
       outputs:
         # Hint: For some (most?) languages, the sonar-runner needs more than just the
         # sources to perform a full analysis. Line coverage reports, unit test reports,
@@ -23,4 +21,4 @@
       run:
         path: source-deploy/ci/scripts/sonar-build.sh
     params:
-      MICROSLIST: {{ micros_list_str }}
+      MICRONAME: {{ micro_name }}
