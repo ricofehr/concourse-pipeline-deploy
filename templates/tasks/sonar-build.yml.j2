@@ -19,6 +19,7 @@
         # and the compilation/test in your Concourse CI build plan.
         # (And that is the reason, why we need the following output)
         - name: sonarqube-analysis-input
+          path: sonarqube-analysis-input/
       run:
         path: source-deploy/ci/scripts/sonar-build.sh
     params:

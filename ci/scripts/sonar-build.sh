@@ -18,7 +18,4 @@ for service in $MICROSLIST; do
     cp -rf ${service}/src/*  sonarqube-analysis-input/src/$service/
 done
 
-ls -all
-find sonarqube-analysis-input/.
-
 exit 0

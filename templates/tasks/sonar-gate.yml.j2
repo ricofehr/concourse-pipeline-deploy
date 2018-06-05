@@ -8,6 +8,6 @@
           tag: latest # Use one of the versioned tags for reproducible builds!
       inputs:
         - name: code-analysis
-        - name: sonarqube-analysis-input
       run:
         path: /sonarqube-qualitygate-check
+        dir: code-analysis
