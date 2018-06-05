@@ -8,7 +8,8 @@ export TERM=${TERM:-dumb}
 
 
 cd $MICRONAME
-[[ ! -f gradlew ]] || ./gradlew --no-daemon clean assemble
+[[ -f gradlew ]] || exit 0
+./gradlew --no-daemon clean assemble
 cd ..
 cp ${MICRONAME}/build/libs/${MICRONAME}-*.jar  build-output/
 

@@ -22,5 +22,9 @@ fi
 
 # Fix jar path
 sed -i "s,build/libs,${PWD}/build-output," ${MICRONAME}/manifest.yml
+
+# Blue-green deploy
 cf bgd ${MICRONAME} -f ${MICRONAME}/manifest.yml
+
+# Revert jar path fix
 cd ${MICRONAME} && git checkout -- manifest.yml

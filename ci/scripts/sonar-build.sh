@@ -13,7 +13,7 @@ mkdir sonarqube-analysis-input/src
 mkdir sonarqube-analysis-input/classes
 mkdir sonarqube-analysis-input/src/$MICRONAME
 mkdir sonarqube-analysis-input/classes/$MICRONAME
-cp -rf ${MICRONAME}/build/classes/*  sonarqube-analysis-input/classes/$MICRONAME/
+[[ ! -d ${MICRONAME}/build/classes ]] || cp -rf ${MICRONAME}/build/classes/*  sonarqube-analysis-input/classes/$MICRONAME/
 cp -rf ${MICRONAME}/src/*  sonarqube-analysis-input/src/$MICRONAME/
 
 exit 0
