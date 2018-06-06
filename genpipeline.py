@@ -61,7 +61,7 @@ def generate_pipeline(micro, git, sonar):
     job['tasks'].append(get_task(deploy_name, "ut", micro_name, git_prefix))
     jobs.append(job)
 
-    if sonar != '':
+    if is_sonar:
         job = {}
         job['name'] = 'sonar-check'
         job['passed'] = 'unit-tests'
@@ -74,7 +74,7 @@ def generate_pipeline(micro, git, sonar):
 
     job = {}
     job['name'] = 'deploy'
-    if sonar != '':
+    if is_sonar:
         job['passed'] = 'sonar-check'
     else:
         job['passed'] = 'unit-tests'
