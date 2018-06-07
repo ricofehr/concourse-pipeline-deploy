@@ -4,8 +4,7 @@
       project_key: {{ deploy_key }}
       project_name: {{ micro_name }}
       sources:
-        - src
+        - src/main
       additional_properties:
-        sonar.java.binaries: classes
-        # Will be passed as "-Dsonar.javascript.lcov.reportPaths="coverage/lcov.info" to the scanner.
-        sonar.javascript.lcov.reportPaths: coverage/lcov.info
+        sonar.java.binaries: classes/java/main
+        sonar.tests: src/test
