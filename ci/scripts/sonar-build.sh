@@ -20,5 +20,5 @@ touch sonarqube-analysis-input/jacoco/test.exec
 cp -rf ${MICRONAME}/src/*  sonarqube-analysis-input/src/
 mkdir -p sonarqube-analysis-input/src/main
 mkdir -p sonarqube-analysis-input/src/test
-
+find sonarqube-analysis-input/
 exit 0
