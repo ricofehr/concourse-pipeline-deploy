@@ -4,8 +4,9 @@
       project_key: {{ deploy_key }}
       project_name: {{ micro_name }}
       sources:
-        - src/main
+        - src/main/java
       additional_properties:
+        sonar.java.libraries: lib
         sonar.java.binaries: classes/java/main
         sonar.tests: src/test
         sonar.jacoco.reportPaths: jacoco/test.exec
