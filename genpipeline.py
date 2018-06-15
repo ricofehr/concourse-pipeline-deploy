@@ -10,22 +10,24 @@ def fly_output(deploy_name):
     print("cd out/%s" % deploy_name)
     print("fly -t lite set-pipeline -p %s -c pipeline.yml -l secret.yml" % deploy_name)
 
-def generate_secret(deploy_name, cf, priv_key, sonar):
+def generate_secret(micro, cf, git, sonar):
     # format priv_key
-    if priv_key != '':
-        priv_key = '        '.join(str(l) for l in priv_key)
-        priv_key = '        ' + priv_key
+    if git['git_ssh_key'] != '':
+        git['git_ssh_key'] = '        '.join(str(l) for l in git['git_ssh_key'])
+        git['git_ssh_key'] = '        ' + git['git_ssh_key']
     # write secret file
     with open('./templates/secret.yml.j2') as j2_file:
         template = Template(j2_file.read())
-        with open('./out/%s/secret.yml' % deploy_name, 'w') as secret_file:
+        with open('./out/%s/secret.yml' % micro['deploy_name'], 'w') as secret_file:
             secret_file.write(template.render(cf_api=cf['cf_api'],
                                               cf_user=cf['cf_user'],
                                               cf_password=cf['cf_password'],
                                               cf_ssocode=cf['cf_ssocode'],
                                               cf_org=cf['cf_org'],
                                               cf_space=cf['cf_space'],
-                                              priv_key=priv_key,
+                                              git_path='%s/%s' % git['git_prefix'] % micro['name'],
+                                              git_deploy_path='%s/%s' % git['git_deploy_prefix'] % git['git_deploy_repo'],
+                                              priv_key=git['git_ssh_key'],
                                               sonar_url=sonar['sonar_url'],
                                               sonar_login=sonar['sonar_login'],
                                               sonar_password=sonar['sonar_password']))
@@ -38,7 +40,6 @@ def generate_pipeline(micro, git, sonar):
     micro_name = micro['name']
     is_gen_secret = micro['is_gen_secret']
     git_prefix = git['git_prefix']
-    git_deploy_prefix = git['git_deploy_prefix']
     git_deploy_repo = git['git_deploy_repo']
     git_branch = git['git_branch']
 
@@ -61,7 +62,7 @@ def generate_pipeline(micro, git, sonar):
     job['name'] = 'unit-tests'
     # prepare tasks list
     job['tasks'] = []
-    job['tasks'].append(get_task(deploy_name, "ut", micro_name, git_prefix, is_deploy_repo))
+    job['tasks'].append(get_task(deploy_name, "ut", micro_name, is_deploy_repo))
     jobs.append(job)
 
     if is_sonar:
@@ -70,9 +71,9 @@ def generate_pipeline(micro, git, sonar):
         job['passed'] = 'unit-tests'
         # prepare tasks list
         job['tasks'] = []
-        job['tasks'].append(get_task(deploy_name, "sonar-build", micro_name, git_prefix, is_deploy_repo))
-        job['tasks'].append(get_task(deploy_name, "sonar-put-code", micro_name, git_prefix, is_deploy_repo))
-        job['tasks'].append(get_task(deploy_name, "sonar-gate", micro_name, git_prefix, is_deploy_repo))
+        job['tasks'].append(get_task(deploy_name, "sonar-build", micro_name, is_deploy_repo))
+        job['tasks'].append(get_task(deploy_name, "sonar-put-code", micro_name, is_deploy_repo))
+        job['tasks'].append(get_task(deploy_name, "sonar-gate", micro_name, is_deploy_repo))
         jobs.append(job)
 
     job = {}
@@ -83,8 +84,8 @@ def generate_pipeline(micro, git, sonar):
         job['passed'] = 'unit-tests'
     # prepare tasks list
     job['tasks'] = []
-    job['tasks'].append(get_task(deploy_name, "build", micro_name, git_prefix, is_deploy_repo))
-    job['tasks'].append(get_task(deploy_name, "push", micro_name, git_prefix, is_deploy_repo))
+    job['tasks'].append(get_task(deploy_name, "build", micro_name, is_deploy_repo))
+    job['tasks'].append(get_task(deploy_name, "push", micro_name, is_deploy_repo))
     jobs.append(job)
 
     # write pipeline file
@@ -92,9 +93,7 @@ def generate_pipeline(micro, git, sonar):
         template = Template(j2_file.read())
         with open('./out/%s/pipeline.yml' % deploy_name, 'w') as pipeline_file:
             pipeline_file.write(template.render(micro_name=micro_name,
-                                                git_prefix=git_prefix,
                                                 jobs=jobs,
-                                                git_deploy_prefix=git_deploy_prefix,
                                                 git_deploy_repo=git_deploy_repo,
                                                 branch=git_branch,
                                                 is_sonar=is_sonar,
@@ -103,12 +102,11 @@ def generate_pipeline(micro, git, sonar):
             pipeline_file.close()
         j2_file.close()
 
-def get_task(deploy_name, task_name, micro_name, git_prefix, is_deploy_repo):
+def get_task(deploy_name, task_name, micro_name, is_deploy_repo):
     task = {}
     with open('./templates/tasks/%s.yml.j2' % task_name) as j2_file:
         template = Template(j2_file.read())
         task = template.render(micro_name=micro_name,
-                               git_prefix=git_prefix,
                                deploy_key=deploy_name,
                                is_deploy_repo=is_deploy_repo)
         j2_file.close()
@@ -272,7 +270,7 @@ def main():
     # Generate secret, tasks and pipelines
     prepare_pipeline(micro['deploy_name'])
     if micro['is_gen_secret']:
-        generate_secret(micro['deploy_name'], cf, git['git_ssh_key'], sonar)
+        generate_secret(micro, cf, git, sonar)
     generate_pipeline(micro, git, sonar['sonar_url'])
     fly_output(micro['deploy_name'])
 

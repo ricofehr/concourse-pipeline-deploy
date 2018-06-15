@@ -20,7 +20,7 @@ resources:
 - name: source-deploy
   type: git
   source:
-    uri:  {{ git_deploy_prefix }}/{{ git_deploy_repo }}
+    uri:  {{ '{{' }}git-deploy-path{{ '}}' }}
     branch: master
     {%- if is_priv_key %}
     private_key: {{ '{{' }}git-private-key{{ '}}' }}
@@ -37,7 +37,7 @@ resources:
 - name: {{ micro_name }}
   type: git
   source:
-    uri:  {{ git_prefix }}/{{ micro_name }}
+    uri:  {{ '{{' }}git-path{{ '}}' }}
     branch: {{ git_branch }}
     {%- if is_priv_key %}
     private_key: {{ '{{' }}git-private-key{{ '}}' }}
