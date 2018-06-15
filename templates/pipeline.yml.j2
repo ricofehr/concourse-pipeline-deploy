@@ -16,6 +16,7 @@ resource_types:
 {%- endif %}
 
 resources:
+{%- if is_deploy_repo %}
 - name: source-deploy
   type: git
   source:
@@ -24,6 +25,7 @@ resources:
     {%- if is_priv_key %}
     private_key: {{ '{{' }}git-private-key{{ '}}' }}
     {%- endif %}
+{%- endif %}
 {%- if is_sonar %}
 - name: code-analysis
   type: sonar-runner
@@ -47,7 +49,9 @@ jobs:
   public: true
   serial: true
   plan:
+  {%- if git_deploy_repo %}
   - get: source-deploy
+  {%- endif %}
   - get: {{ micro_name }}
     {%- if job.passed %}
     passed: [{{ job.passed }}]

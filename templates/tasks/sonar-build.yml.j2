@@ -7,7 +7,9 @@
           repository: java
           tag: 'openjdk-8'
       inputs:
+        {%- if is_deploy_repo %}
         - name: source-deploy
+        {%- endif %}
         - name: {{ micro_name }}
       outputs:
         # Hint: For some (most?) languages, the sonar-runner needs more than just the
@@ -19,6 +21,10 @@
         - name: sonarqube-analysis-input
           path: sonarqube-analysis-input/
       run:
+        {%- if is_deploy_repo %}
         path: source-deploy/ci/scripts/sonar-build.sh
+        {%- else %}
+        path: {{ micro_name }}/ci/scripts/sonar-build.sh
+        {%- endif %}
     params:
       MICRONAME: {{ micro_name }}

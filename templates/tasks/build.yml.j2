@@ -7,12 +7,18 @@
           repository: java
           tag: 'openjdk-8'
       inputs:
+        {%- if is_deploy_repo %}
         - name: source-deploy
+        {%- endif %}
         - name: {{ micro_name }}
       outputs:
         - name: build-output
           path: build-output/
       run:
+        {%- if is_deploy_repo %}
         path: source-deploy/ci/scripts/build.sh
+        {%- else %}
+        path: {{ micro_name }}/ci/scripts/build.sh
+        {%- endif %}
     params:
       MICRONAME: {{ micro_name }}

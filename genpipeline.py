@@ -50,6 +50,9 @@ def generate_pipeline(micro, git, sonar):
     is_sonar = True
     if (is_gen_secret == True) & (sonar == ''):
         is_sonar = False
+    is_deploy_repo = True
+    if git_deploy_repo == '':
+        is_deploy_repo = False
 
     # prepare jobs
     jobs = []
@@ -58,7 +61,7 @@ def generate_pipeline(micro, git, sonar):
     job['name'] = 'unit-tests'
     # prepare tasks list
     job['tasks'] = []
-    job['tasks'].append(get_task(deploy_name, "ut", micro_name, git_prefix))
+    job['tasks'].append(get_task(deploy_name, "ut", micro_name, git_prefix, is_deploy_repo))
     jobs.append(job)
 
     if is_sonar:
@@ -67,9 +70,9 @@ def generate_pipeline(micro, git, sonar):
         job['passed'] = 'unit-tests'
         # prepare tasks list
         job['tasks'] = []
-        job['tasks'].append(get_task(deploy_name, "sonar-build", micro_name, git_prefix))
-        job['tasks'].append(get_task(deploy_name, "sonar-put-code", micro_name, git_prefix))
-        job['tasks'].append(get_task(deploy_name, "sonar-gate", micro_name, git_prefix))
+        job['tasks'].append(get_task(deploy_name, "sonar-build", micro_name, git_prefix, is_deploy_repo))
+        job['tasks'].append(get_task(deploy_name, "sonar-put-code", micro_name, git_prefix, is_deploy_repo))
+        job['tasks'].append(get_task(deploy_name, "sonar-gate", micro_name, git_prefix, is_deploy_repo))
         jobs.append(job)
 
     job = {}
@@ -80,8 +83,8 @@ def generate_pipeline(micro, git, sonar):
         job['passed'] = 'unit-tests'
     # prepare tasks list
     job['tasks'] = []
-    job['tasks'].append(get_task(deploy_name, "build", micro_name, git_prefix))
-    job['tasks'].append(get_task(deploy_name, "push", micro_name, git_prefix))
+    job['tasks'].append(get_task(deploy_name, "build", micro_name, git_prefix, is_deploy_repo))
+    job['tasks'].append(get_task(deploy_name, "push", micro_name, git_prefix, is_deploy_repo))
     jobs.append(job)
 
     # write pipeline file
@@ -95,16 +98,19 @@ def generate_pipeline(micro, git, sonar):
                                                 git_deploy_repo=git_deploy_repo,
                                                 branch=git_branch,
                                                 is_sonar=is_sonar,
-                                                is_priv_key=is_priv_key))
+                                                is_priv_key=is_priv_key,
+                                                is_deploy_repo=is_deploy_repo))
             pipeline_file.close()
         j2_file.close()
 
-def get_task(deploy_name, task_name, micro_name, git_prefix):
+def get_task(deploy_name, task_name, micro_name, git_prefix, is_deploy_repo):
     task = {}
     with open('./templates/tasks/%s.yml.j2' % task_name) as j2_file:
         template = Template(j2_file.read())
         task = template.render(micro_name=micro_name,
-                               git_prefix=git_prefix, deploy_key=deploy_name)
+                               git_prefix=git_prefix,
+                               deploy_key=deploy_name,
+                               is_deploy_repo=is_deploy_repo)
         j2_file.close()
     return task
 
@@ -171,7 +177,6 @@ def parse_args():
 
     # Ensure mandatory fields are present
     if (options.git_prefix == None) | \
-       (options.git_deploy_repo == None) | \
        (options.micro_name == None):
         print(parser.usage)
         exit(1)
@@ -187,6 +192,9 @@ def parse_args():
         if (options.cf_password == None) & (options.cf_ssocode == None):
             print(parser.usage)
             exit(1)
+
+    if options.git_deploy_repo == None:
+        options.git_deploy_repo = ''
 
     if options.cf_password == None:
         options.cf_password = ''

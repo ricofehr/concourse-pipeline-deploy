@@ -7,9 +7,15 @@
           repository: java
           tag: 'openjdk-8'
       inputs:
+        {%- if is_deploy_repo %}
         - name: source-deploy
+        {%- endif %}
         - name: {{ micro_name }}
       run:
+        {%- if is_deploy_repo %}
         path: source-deploy/ci/scripts/ut.sh
+        {%- else %}
+        path: {{ micro_name }}/ci/scripts/ut.sh
+        {%- endif %}
     params:
       MICRONAME: {{ micro_name }}

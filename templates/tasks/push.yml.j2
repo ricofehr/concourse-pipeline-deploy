@@ -6,11 +6,17 @@
         source:
           repository: ricofehr/cf-cli
       inputs:
+        {%- if is_deploy_repo %}
         - name: source-deploy
+        {%- endif %}
         - name: build-output
         - name: {{ micro_name }}
       run:
+        {%- if is_deploy_repo %}
         path: source-deploy/ci/scripts/push.sh
+        {%- else %}
+        path: {{ micro_name }}/ci/scripts/push.sh
+        {%- endif %}
     params:
       CF_API: {{ '{{' }}cf-api{{ '}}' }}
       CF_USER: {{ '{{' }}cf-username{{ '}}' }}
