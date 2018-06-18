@@ -12,10 +12,11 @@
         - name: build-output
         - name: {{ micro_name }}
       run:
+        path: ci/scripts/push.sh
         {%- if is_deploy_repo %}
-        path: source-deploy/ci/scripts/push.sh
+        dir: source-deploy
         {%- else %}
-        path: {{ micro_name }}/ci/scripts/push.sh
+        dir: {{ micro_name }}
         {%- endif %}
     params:
       CF_API: {{ '{{' }}cf-api{{ '}}' }}
@@ -24,4 +25,3 @@
       CF_SSOCODE: {{ '{{' }}cf-ssocode{{ '}}' }}
       CF_ORG: {{ '{{' }}cf-organization{{ '}}' }}
       CF_SPACE: {{ '{{' }}cf-space{{ '}}' }}
-      MICRONAME: {{ micro_name }}

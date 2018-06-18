@@ -15,10 +15,9 @@
         - name: build-output
           path: build-output/
       run:
+        path: ci/scripts/build.sh
         {%- if is_deploy_repo %}
-        path: source-deploy/ci/scripts/build.sh
+        dir: source-deploy
         {%- else %}
-        path: {{ micro_name }}/ci/scripts/build.sh
+        dir: {{ micro_name }}
         {%- endif %}
-    params:
-      MICRONAME: {{ micro_name }}

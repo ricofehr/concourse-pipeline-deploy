@@ -11,8 +11,6 @@ if [[ -z $CF_SSOCODE ]] && [[ -z $CF_PASSWORD ]]; then
     echo "CF_SSOCODE env variable is missing" && exit 1
 fi
 
-[[ -z "$MICRONAME" ]] && exit 1
-
 export TERM=${TERM:-dumb}
 if [[ -z $CF_SSOCODE ]]; then
     cf login -a $CF_API -u $CF_USER -p $CF_PASSWORD -o $CF_ORG -s $CF_SPACE --skip-ssl-validation
@@ -21,10 +19,10 @@ else
 fi
 
 # Fix jar path
-sed -i "s,build/libs,${PWD}/build-output," ${MICRONAME}/manifest.yml
+sed -i "s,build/libs,${PWD}/../build-output," manifest.yml
 
 # Blue-green deploy
-cf bgd ${MICRONAME} -f ${MICRONAME}/manifest.yml
+cf bgd $(grep "name:" manifest.yml | sed "s;^.*name:;;" | tr -d ' ' | tr -d '\n') -f manifest.yml
 
 # Revert jar path fix
-cd ${MICRONAME} && git checkout -- manifest.yml
+git checkout -- manifest.yml

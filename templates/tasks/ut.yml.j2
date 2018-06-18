@@ -12,10 +12,9 @@
         {%- endif %}
         - name: {{ micro_name }}
       run:
+        path: ci/scripts/ut.sh
         {%- if is_deploy_repo %}
-        path: source-deploy/ci/scripts/ut.sh
+        dir: source-deploy
         {%- else %}
-        path: {{ micro_name }}/ci/scripts/ut.sh
+        dir: {{ micro_name }}
         {%- endif %}
-    params:
-      MICRONAME: {{ micro_name }}
