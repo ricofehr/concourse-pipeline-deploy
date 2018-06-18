@@ -26,6 +26,7 @@ def generate_secret(micro, cf, git, sonar):
                                               cf_org=cf['cf_org'],
                                               cf_space=cf['cf_space'],
                                               git_path='%s/%s' % git['git_prefix'] % micro['name'],
+                                              git_branch=git['git_branch'],
                                               git_deploy_path='%s/%s' % git['git_deploy_prefix'] % git['git_deploy_repo'],
                                               priv_key=git['git_ssh_key'],
                                               sonar_url=sonar['sonar_url'],
@@ -41,7 +42,6 @@ def generate_pipeline(micro, git, sonar):
     is_gen_secret = micro['is_gen_secret']
     git_prefix = git['git_prefix']
     git_deploy_repo = git['git_deploy_repo']
-    git_branch = git['git_branch']
 
     # Assume that if secret already present (gen_secret false),
     # we have sonar enabled and ssh key
@@ -95,7 +95,6 @@ def generate_pipeline(micro, git, sonar):
             pipeline_file.write(template.render(micro_name=micro_name,
                                                 jobs=jobs,
                                                 git_deploy_repo=git_deploy_repo,
-                                                branch=git_branch,
                                                 is_sonar=is_sonar,
                                                 is_priv_key=is_priv_key,
                                                 is_deploy_repo=is_deploy_repo))

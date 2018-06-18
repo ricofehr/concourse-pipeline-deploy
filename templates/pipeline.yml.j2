@@ -38,7 +38,7 @@ resources:
   type: git
   source:
     uri:  {{ '{{' }}git-path{{ '}}' }}
-    branch: {{ git_branch }}
+    branch: {{ '{{' }}git-branch{{ '}}' }}
     {%- if is_priv_key %}
     private_key: {{ '{{' }}git-private-key{{ '}}' }}
     {%- endif %}
