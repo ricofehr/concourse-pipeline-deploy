@@ -27,7 +27,7 @@ resources:
     {%- endif %}
 {%- endif %}
 {%- if is_sonar %}
-- name: code-analysis-{{ micro_name }}
+- name: code-analysis
   type: sonar-runner
   source:
     host_url: {{ '{{' }}sonar-url{{ '}}' }}
@@ -37,7 +37,7 @@ resources:
 - name: {{ micro_name }}
   type: git
   source:
-    uri:  {{ '{{' }}git-path{{ '}}' }}
+    uri:  {{ '((' }}git-path{{ '))' }}/{{ micro_name }}
     branch: {{ '{{' }}git-branch{{ '}}' }}
     {%- if is_priv_key %}
     private_key: {{ '{{' }}git-private-key{{ '}}' }}
