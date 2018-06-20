@@ -7,7 +7,7 @@
           repository: cathive/concourse-sonarqube-qualitygate-task
           tag: latest # Use one of the versioned tags for reproducible builds!
       inputs:
-        - name: code-analysis
+        - name: code-analysis-{{ micro_name }}
       run:
         path: /sonarqube-qualitygate-check
-        dir: code-analysis
+        dir: code-analysis-{{ micro_name }}

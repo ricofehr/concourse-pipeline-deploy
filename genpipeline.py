@@ -133,7 +133,7 @@ def parse_args():
                                    ' --private-key <sshkey_file> --gd <git_deploy_prefix>'
                                    ' --deploy-name <deploy_name> --branch <git_branch>'
                                    ' --sonar <sonar_endpoint> --sonar-login <sonar_login>'
-                                   '  --sonar-password <sonar_password> --nobuild-secret'
+                                   ' --sonar-password <sonar_password> --nobuild-secret'
                                    % sys.argv[0])
     parser.add_option('-g', dest='git_prefix', type='string',
                       help='git prefix like ssh://127.0.0.1:22/root, mandatory')

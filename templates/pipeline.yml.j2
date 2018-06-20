@@ -27,7 +27,7 @@ resources:
     {%- endif %}
 {%- endif %}
 {%- if is_sonar %}
-- name: code-analysis
+- name: code-analysis-{{ micro_name }}
   type: sonar-runner
   source:
     host_url: {{ '{{' }}sonar-url{{ '}}' }}
