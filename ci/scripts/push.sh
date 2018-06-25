@@ -21,8 +21,14 @@ fi
 # Fix jar path
 sed -i "s,build/libs,${PWD}/../build-output," manifest.yml
 
+# Get app name
+CF_APP="$(grep "name:" manifest.yml | sed "s;^.*name:;;" | tr -d ' ' | tr -d '\n')"
+
 # Blue-green deploy
-cf bgd $(grep "name:" manifest.yml | sed "s;^.*name:;;" | tr -d ' ' | tr -d '\n') -f manifest.yml
+cf bgd $CF_APP -f manifest.yml
+
+# Remove old app
+cf delete -f -r "${CF_APP}-old"
 
 # Revert jar path fix
 git checkout -- manifest.yml
